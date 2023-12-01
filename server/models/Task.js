@@ -18,14 +18,18 @@ const TaskSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    date: {
+    startDate: {
         type: Date,
         required: true
     },
-    time: {
-        type: String,
+    endDate: {
+        type: Date,
         required: true
-    }
+    },
+    // time: {
+    //     type: String,
+    //     required: true
+    // }
 }, {timestamps: true})
 
 export default mongoose.model('Task', TaskSchema)

@@ -19,7 +19,7 @@ const initialRegisterValues = {
   name: "",
   email: "",
   password: "",
-  picture: "",
+  picture: "2023-11-30T14-40-30.226Zblank-profile-picture-973460_960_720.webp",
 };
 
 const initialLoginValues = {
@@ -87,15 +87,15 @@ const Login = () => {
         errors,
       }) => (
         <Box p="2rem 0" m="2rem auto" width={isNotMobile ? "50%" : "90%"}>
-          <Typography textAlign="center" mb="2rem">
-            Welcome to Taskup
+          <Typography variant="h3" textAlign="center" mb="2rem" fontWeight="bold">
+            Task Manager
           </Typography>
           <form onSubmit={handleSubmit}>
             <Box display="flex" flexDirection="column" gap="30px">
               {isRegister && (
                 <>
                   <TextField
-                    label="Enter name"
+                    label="Enter Name"
                     name="name"
                     value={values.name}
                     onChange={handleChange}
@@ -124,7 +124,7 @@ const Login = () => {
                       >
                         <input {...getInputProps()} />
                         {!values.picture ? (
-                          <Typography>Add picture</Typography>
+                          <Typography>Add Picture</Typography>
                         ) : (
                           <Typography>
                             {values.picture.name} <EditOutlinedIcon />
@@ -136,7 +136,7 @@ const Login = () => {
                 </>
               )}
               <TextField
-                label="Enter email"
+                label="Enter Email"
                 name="email"
                 value={values.email}
                 onChange={handleChange}
@@ -145,7 +145,8 @@ const Login = () => {
                 helperText={touched.email && errors.email}
               />
               <TextField
-                label="Enter password"
+                type="password"
+                label="Enter Password"
                 name="password"
                 value={values.password}
                 onChange={handleChange}
@@ -153,15 +154,15 @@ const Login = () => {
                 error={Boolean(touched.password) && Boolean(errors.password)}
                 helperText={touched.password && errors.password}
               />
-              <Button type="submit" m="2rem 0" background="#00d5fa">
+              <Button type="submit" m="2rem 0" background="#00d5fa" variant="contained">
                 {isLogin ? "Login" : "Register"}
               </Button>
-              <Typography
+              <Button
                 onClick={() => {
                   setPage(isLogin ? "register" : "login");
                   resetForm();
                 }}
-                variant="h6"
+                variant="contained"
                 textAlign="center"
                 sx={{
                   "&:hover": {
@@ -174,7 +175,7 @@ const Login = () => {
                 ) : (
                   <>Already a user, go to login</>
                 )}
-              </Typography>
+              </Button>
             </Box>
           </form>
         </Box>

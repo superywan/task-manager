@@ -36,6 +36,7 @@ export const getTasks = async (req, res, next) => {
   try {
     const type =  req.query?.type
     const day = req.query?.day
+    const status =  req.query?.status
     const {id} = req.user
     var min , max
     if(day === 'today') {
@@ -50,13 +51,37 @@ export const getTasks = async (req, res, next) => {
       min = dayjs().subtract(30, 'day').format('YYYY-MM-DD')
       max = dayjs().format('YYYY-MM-DD')
     }
-    if(type) {
-     var tasks = await Task.find({userId: id , type , ...(day && {date: {$lte : new Date(max), $gte: new Date(min)} })})
+
+    let tasks = [];
+    if (type && status) {
+      tasks = await Task.find({userId: id , type, status: status.toLowerCase(), ...(day && {date: {$lte : new Date(max), $gte: new Date(min)} })})
+      return res.status(201).json({tasks})
     }
-    else {
-    var tasks = await Task.find({userId: id , ...(day && {date: {$lte : new Date(max), $gte: new Date(min)} }) })
+
+    if (type) {
+      tasks = await Task.find({userId: id , type, ...(day && {date: {$lte : new Date(max), $gte: new Date(min)} })})
+      return res.status(201).json({tasks})
     }
+
+    if (status) {
+       tasks = await Task.find({userId: id , status: status.toLowerCase(), ...(day && {date: {$lte : new Date(max), $gte: new Date(min)} })})
+      return res.status(201).json({tasks})
+    }
+
+    tasks = await Task.find({userId: id , ...(day && {date: {$lte : new Date(max), $gte: new Date(min)} }) })
     return res.status(201).json({tasks})
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const DeleteTask = async (req, res, next) => {
+  try {
+    console.log(req)
+    const {id} = req.params
+    console.log(id)
+    const task = await Task.deleteById(id);
+    return res.status(201).json({ message: "Successfully deleted task!" })
   } catch (err) {
     next(err);
   }

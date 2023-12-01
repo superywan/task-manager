@@ -20,28 +20,34 @@ import axiosInstance from "../services/api";
 import { useNavigate } from "react-router-dom";
 const initialEditSchema = Yup.object().shape({
   name: Yup.string().required("Required"),
-  date: Yup.string().required("required"),
+  startDate: Yup.string().required("required"),
+  endDate: Yup.string().required("required"),
   type: Yup.string().required("Required"),
-  time: Yup.string().required("Required"),
   status: Yup.string().required("Required"),
 });
 
 const initialCreateSchema = Yup.object().shape({
   name: Yup.string().required("Required"),
-  date: Yup.string().required("required"),
+  startDate: Yup.string().required("required"),
+  endDate: Yup.string().required("required"),
   type: Yup.string().required("Required"),
-  time: Yup.string().required("Required"),
 });
 
 let initialValues = {
   name: "",
   type: "",
-  date: dayjs().format('YYYY-MM-DD'),
+  startDate: dayjs().format('YYYY-MM-DD'),
+  endDate: dayjs().format('YYYY-MM-DD'),
   time: dayjs(),
 };
 const TaskForm = ({ mode = "edit", task }) => {
   const navigate = useNavigate();
-  const types = ["default", "personal", "shopping", "wishlist", "work"];
+  const types = ["Default", "Development", "Work", "School"];
+
+  const [startDate, setStartDate] = useState(dayjs().format('YYYY-MM-DD'));
+  const [endDate, setEndDate] = useState(dayjs().format('YYYY-MM-DD'));
+
+
   const handleFormSubmit = (values, onSubmitProps) => {
     if (mode === "edit") {
       axiosInstance.put(`/task/${values._id}`, values).then((res) => {
@@ -54,9 +60,14 @@ const TaskForm = ({ mode = "edit", task }) => {
       });
     }
   };
+  const handleDelete = (values) => {
+    console.log(values)
+    axiosInstance.delete(`/${values._id}`).then((res) => {
+      navigate("/home");
+    });
+  }
   const isNotMobile = useMediaQuery("(min-width: 768px)");
-  const [date, setDate] = useState(null);
-  const [time, setTime] = useState(null);
+
   return (
     <Formik
       onSubmit={handleFormSubmit}
@@ -73,13 +84,13 @@ const TaskForm = ({ mode = "edit", task }) => {
         errors,
       }) => (
         <Box p="2rem 0" m="2rem auto" width={isNotMobile ? "50%" : "90%"}>
-          <Typography textAlign="center" mb="2rem">
-            Create a task
+          <Typography variant="h5" fontWeight="bold" textAlign="center" mb="2rem">
+            Create a Task
           </Typography>
           <form onSubmit={handleSubmit}>
             <Box display="flex" flexDirection="column" gap="30px">
               <TextField
-                label="Task name"
+                label="Task Name"
                 value={values.name}
                 name="name"
                 onChange={handleChange}
@@ -89,37 +100,68 @@ const TaskForm = ({ mode = "edit", task }) => {
               />
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
-                  label="Date"
-                  value={mode ==="edit" ? dayjs(values.date || null) : values.date}
+                  label="Start Date"
+                  value={mode ==="edit" ? dayjs(values.startDate || null) : values.startDate}
                   minDate={mode === "edit" ? null : dayjs()}
                   onChange={(newValue) => {
-                    values.date = newValue.format("YYYY-MM-DD");
-                    setDate(values.date);
+                    values.startDate = newValue.format("YYYY-MM-DD");
+                    setStartDate(values.startDate);
                   }}
                   onBlur={handleBlur}
-                  name="date"
+                  name="startDate"
                   renderInput={(params) => (
-                    <TextField {...params} helperText="Select Date" />
+                    <TextField {...params} />
                   )}
                   error={Boolean(touched.date) && Boolean(errors.date)}
                 />
               </LocalizationProvider>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
+              {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <TimePicker
-                  label="Time"
+                  label="Start Time"
                   value={mode ==="edit" ? dayjs(`${values.date.split("T")[0]}T${values.time}` || null) : values.time}
                   onChange={(newValue) => {
                     values.time = newValue;
-                    setTime(values.time);
                   }}
                   name="time"
                   onBlur={handleBlur}
                   error={Boolean(touched.time) && Boolean(errors.time)}
                   renderInput={(params) => (
-                    <TextField {...params} helperText="Set Time" />
+                    <TextField {...params} />
                   )}
                 />
+              </LocalizationProvider> */}
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="End Date"
+                  value={mode ==="edit" ? dayjs(values.endDate || null) : values.endDate}
+                  minDate={mode === "edit" ? null : dayjs()}
+                  onChange={(newValue) => {
+                    values.endDate = newValue.format("YYYY-MM-DD");
+                    setEndDate(values.endDate);
+                  }}
+                  onBlur={handleBlur}
+                  name="endDate"
+                  renderInput={(params) => (
+                    <TextField {...params} />
+                  )}
+                  error={Boolean(touched.date) && Boolean(errors.date)}
+                />
               </LocalizationProvider>
+              {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <TimePicker
+                  label="End Time"
+                  value={mode ==="edit" ? dayjs(`${values.date.split("T")[0]}T${values.time}` || null) : values.time}
+                  onChange={(newValue) => {
+                    values.time = newValue;
+                  }}
+                  name="time"
+                  onBlur={handleBlur}
+                  error={Boolean(touched.time) && Boolean(errors.time)}
+                  renderInput={(params) => (
+                    <TextField {...params} />
+                  )}
+                />
+              </LocalizationProvider> */}
               <FormControl>
                 <InputLabel>Select Type</InputLabel>
                 <Select
@@ -153,14 +195,26 @@ const TaskForm = ({ mode = "edit", task }) => {
                 </FormControl>
               )}
               <Button
-                variant="outlined"
+                variant="contained"
                 type="submit"
                 m="2rem 0"
                 p="1rem 0"
-                background="#00D5FA"
               >
                 {mode === "edit" ? 'Edit Task' : 'Create Task' }
               </Button>
+              {mode === "edit" && (
+                <Button
+                  color="error"
+                  variant="contained"
+                  onClick={() => {
+                    handleDelete(values)
+                  }}
+                  m="2rem 0"
+                  p="1rem 0"
+                >
+                  Delete Task
+                </Button>
+              )}
             </Box>
           </form>
         </Box>
